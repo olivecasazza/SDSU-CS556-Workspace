@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.23.6"
-app = marimo.App(width="full", app_title="Robot trajectory generation")
+app = marimo.App()
 
 
 @app.cell
@@ -14,12 +14,16 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # Robot trajectory generation
+    ### Problem 4
+    **Language: Python3**
 
-    Compare a two-segment cubic spline trajectory against a cycloidal trajectory
-    for a single robot joint. The cubic trajectory passes through a via point;
-    the cycloid moves directly from start to finish with continuous velocity and
-    acceleration at the endpoints.
+    Consider robot trajectory generation using a two-segment spline where each segment is a cubic polynomial (see equation 7.10 of the text).
+
+    a. Sketch the graphs of position, velocity and acceleration for initial angle 0=5.0 deg, the via-point angle v=15.0 deg. and final angle f=40.0 deg. Assume that the duration of each segment is 1.0 sec (i.e. total duration of  2 sec), and the velocity at the via point is to be 17.5 deg/sec.
+
+    b. Use the cycloid trajectory, with the same initial 0=5.0 deg and final f=40.0 deg  joint angles, and the total duration of 2 sec. Compare the maximum velocity and acceleration with the two segment cubic polynomial in (a), which trajectory is better and why?
+
+    The maximum velocity and acceleration for the cycloid trajectory are a lot more continuous and smooth than the trajectories produced by the spline functions. This is more desireable because it will produce robot movements that are a lot smoother than those produced by the spline calculations.
     """)
     return
 
@@ -27,117 +31,93 @@ def _(mo):
 @app.cell
 async def _():
     import micropip
+    await micropip.install(['plotly', 'sympy', 'numpy'])
 
-    await micropip.install(["numpy", "plotly"])
-
-    import numpy as np
     import plotly.graph_objects as go
+    import sympy as sp
+    import numpy as np
+    import math as math
 
-    return go, np
-
-
-@app.cell
-def _(mo):
-    start = mo.ui.slider(0, 90, value=5, step=1, label="start angle θ₀ (deg)")
-    via = mo.ui.slider(0, 90, value=15, step=1, label="via angle θᵥ (deg)")
-    finish = mo.ui.slider(0, 90, value=40, step=1, label="finish angle θf (deg)")
-    via_velocity = mo.ui.slider(-60, 60, value=17.5, step=0.5, label="via velocity (deg/s)")
-    duration = mo.ui.slider(0.5, 5.0, value=2.0, step=0.25, label="total duration (s)")
-    controls = mo.vstack([start, via, finish, via_velocity, duration])
-    controls
-    return duration, finish, start, via, via_velocity
+    return go, math, np, sp
 
 
 @app.cell
-def _(duration, finish, go, np, start, via, via_velocity):
-    q0 = float(start.value)
-    qv = float(via.value)
-    qf = float(finish.value)
-    vv = float(via_velocity.value)
-    tf = float(duration.value)
-    tv = tf / 2
-
-    t1 = np.linspace(0, tv, 160)
-    t2 = np.linspace(tv, tf, 160)
-    tau1 = t1
-    tau2 = t2 - tv
-
-    def cubic_coeff(q_start, q_end, v_start, v_end, segment_duration):
-        a0 = q_start
-        a1 = v_start
-        a2 = (3 * (q_end - q_start) / segment_duration**2) - ((2 * v_start + v_end) / segment_duration)
-        a3 = (-2 * (q_end - q_start) / segment_duration**3) + ((v_start + v_end) / segment_duration**2)
-        return a0, a1, a2, a3
-
-    c1 = cubic_coeff(q0, qv, 0.0, vv, tv)
-    c2 = cubic_coeff(qv, qf, vv, 0.0, tv)
-
-    def eval_cubic(coeffs, tau):
-        a0, a1, a2, a3 = coeffs
-        q = a0 + a1 * tau + a2 * tau**2 + a3 * tau**3
-        v = a1 + 2 * a2 * tau + 3 * a3 * tau**2
-        a = 2 * a2 + 6 * a3 * tau
-        return q, v, a
-
-    q1, v1, a1 = eval_cubic(c1, tau1)
-    q2, v2, a2 = eval_cubic(c2, tau2)
-    cubic_t = np.concatenate([t1, t2])
-    cubic_q = np.concatenate([q1, q2])
-    cubic_v = np.concatenate([v1, v2])
-    cubic_a = np.concatenate([a1, a2])
-
-    tc = np.linspace(0, tf, 320)
-    s = tc / tf
-    cycloid_q = q0 + (qf - q0) * (s - np.sin(2 * np.pi * s) / (2 * np.pi))
-    cycloid_v = (qf - q0) / tf * (1 - np.cos(2 * np.pi * s))
-    cycloid_a = (qf - q0) * (2 * np.pi / tf**2) * np.sin(2 * np.pi * s)
-
-    fig = go.Figure()
-    rows = [
-        ("position", cubic_q, cycloid_q, "deg"),
-        ("velocity", cubic_v, cycloid_v, "deg/s"),
-        ("acceleration", cubic_a, cycloid_a, "deg/s²"),
-    ]
-    for idx, (name, cubic_y, cycloid_y, units) in enumerate(rows):
-        yaxis = "y" if idx == 0 else f"y{idx + 1}"
-        fig.add_trace(go.Scatter(x=cubic_t, y=cubic_y, name=f"cubic {name}", yaxis=yaxis, line=dict(color="#5dcdbe")))
-        fig.add_trace(go.Scatter(x=tc, y=cycloid_y, name=f"cycloid {name}", yaxis=yaxis, line=dict(color="#f0dd7d", dash="dash")))
-        fig.update_layout({
-            yaxis: dict(title=f"{name} ({units})", domain=[1 - (idx + 1) / 3 + 0.04, 1 - idx / 3 - 0.04])
-        })
-
-    fig.update_layout(
-        template="plotly_dark",
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        height=760,
-        margin=dict(l=40, r=20, t=20, b=40),
-        xaxis=dict(title="time (s)"),
-        legend=dict(orientation="h"),
-    )
-    fig
-    return cubic_a, cubic_v, cycloid_a, cycloid_v, mo if False else None
+def _(go, np, sp):
+    a0, a1, a2, a3, t = sp.symbols('a0 a1 a2 a3 t')
+    _pf = a0 + a1 * t + a2 * t ** 2 + a3 * t ** 3
+    # position plot
+    _pfl = sp.lambdify((a0, a1, a2, a3, t), _pf, 'numpy')
+    _px_one = np.linspace(0, 1, 100).tolist()
+    _px_two = np.linspace(1, 2, 100).tolist()
+    _py_one = [_pfl(5, 0, 12.5, -2.5, t) for t in _px_one]
+    _py_two = [_pfl(15, 17.5, 40, -32.5, t - 1) for t in _px_two]
+    _position_plot = go.Figure()
+    _position_plot.add_trace(go.Scatter(x=_px_one, y=_py_one, mode='lines'))
+    _position_plot.add_trace(go.Scatter(x=_px_two, y=_py_two, mode='lines'))
+    _position_plot.show()
+    _vf = a1 + 2 * a2 * t + 3 * a3 * t ** 2
+    _vfl = sp.lambdify((a1, a2, a3, t), _vf, 'numpy')
+    _vx_one = np.linspace(0, 1, 100).tolist()
+    _vx_two = np.linspace(1, 2, 100).tolist()
+    # velocity plot
+    _vy_one = [_vfl(0, 12.5, -2.5, t) for t in _vx_one]
+    _vy_two = [_vfl(17.5, 40, -32.5, t - 1) for t in _vx_two]
+    _velocity_plot = go.Figure()
+    _velocity_plot.add_trace(go.Scatter(x=_vx_one, y=_vy_one, mode='lines'))
+    _velocity_plot.add_trace(go.Scatter(x=_vx_two, y=_vy_two, mode='lines'))
+    _velocity_plot.show()
+    _af = 2 * a2 + 6 * a3 * t
+    _afl = sp.lambdify((a1, a2, a3, t), _af, 'numpy')
+    _ax_one = np.linspace(0, 1, 100).tolist()
+    _ax_two = np.linspace(1, 2, 100).tolist()
+    _ay_one = [_afl(0, 12.5, -2.5, t) for t in _ax_one]
+    _ay_two = [_afl(17.5, 40, -32.5, t - 1) for t in _ax_two]
+    _acceleration_plot = go.Figure()
+    # acceleration plot
+    _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
+    _acceleration_plot.add_trace(go.Scatter(x=_ax_two, y=_ay_two, mode='lines'))
+    _acceleration_plot.show()
+    return (t,)
 
 
-@app.cell(hide_code=True)
-def _(cubic_a, cubic_v, cycloid_a, cycloid_v, mo, np):
-    mo.md(
-        f"""
-        ## Comparison
-
-        | trajectory | max velocity | max acceleration |
-        | --- | ---: | ---: |
-        | two-segment cubic | {np.max(np.abs(cubic_v)):.2f} deg/s | {np.max(np.abs(cubic_a)):.2f} deg/s² |
-        | cycloid | {np.max(np.abs(cycloid_v)):.2f} deg/s | {np.max(np.abs(cycloid_a)):.2f} deg/s² |
-
-        The cycloid is usually preferable when smooth endpoint behavior matters:
-        it starts and ends with zero velocity and zero acceleration. The cubic
-        spline can satisfy the via-point constraint, but the acceleration jumps
-        at segment boundaries unless extra continuity constraints are added.
-        """
-    )
+@app.cell
+def _(go, math, np, sp, t):
+    # position plot
+    _pf = 5 + (t / 2 - sp.sin(2 * math.pi * t / 2) / (2 * math.pi)) * (40 - 5)
+    _pfl = sp.lambdify(t, _pf, 'numpy')
+    _px_one = np.linspace(0, 1, 100).tolist()
+    _px_two = np.linspace(1, 2, 100).tolist()
+    _py_one = [_pfl(t) for t in _px_one]
+    _py_two = [_pfl(t) for t in _px_two]
+    _position_plot = go.Figure()
+    _position_plot.add_trace(go.Scatter(x=_px_one, y=_py_one, mode='lines'))
+    _position_plot.add_trace(go.Scatter(x=_px_two, y=_py_two, mode='lines'))
+    _position_plot.show()
+    _vf = (1 / 2 - sp.cos(2 * math.pi * t / 2) / 2) * (40 - 5)
+    _vfl = sp.lambdify(t, _vf, 'numpy')
+    _vx_one = np.linspace(0, 1, 100).tolist()
+    # velocity plot
+    _vx_two = np.linspace(1, 2, 100).tolist()
+    _vy_one = [_vfl(t) for t in _vx_one]
+    _vy_two = [_vfl(t) for t in _vx_two]
+    _velocity_plot = go.Figure()
+    _velocity_plot.add_trace(go.Scatter(x=_vx_one, y=_vy_one, mode='lines'))
+    _velocity_plot.add_trace(go.Scatter(x=_vx_two, y=_vy_two, mode='lines'))
+    _velocity_plot.show()
+    _af = sp.sin(2 * math.pi * t / 2) * 2 * math.pi / 4 * 35
+    _afl = sp.lambdify(t, _af, 'numpy')
+    _ax_one = np.linspace(0, 1, 100).tolist()
+    _ax_two = np.linspace(1, 2, 100).tolist()
+    _ay_one = [_afl(t) for t in _ax_one]
+    _ay_two = [_afl(t) for t in _ax_two]
+    # acceleration plot
+    _acceleration_plot = go.Figure()
+    _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
+    _acceleration_plot.add_trace(go.Scatter(x=_ax_two, y=_ay_two, mode='lines'))
+    _acceleration_plot.show()
     return
 
 
 if __name__ == "__main__":
     app.run()
+
