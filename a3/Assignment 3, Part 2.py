@@ -35,7 +35,18 @@ def _():
 
 
 @app.cell
-def _():
+async def _():
+    import piplite
+    await piplite.install([
+        'matplotlib',
+        'tinyik',
+        'numpy',
+        'sympy',
+        'pandas',
+        'plotly',
+        'scikit-learn',
+    ])
+
     # packages
     import math
     import random

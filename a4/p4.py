@@ -35,7 +35,10 @@ def _():
 
 
 @app.cell
-def _():
+async def _():
+    import piplite
+    await piplite.install(['plotly', 'sympy', 'numpy'])
+
     import plotly.graph_objects as go
     import sympy as sp
     import numpy as np
