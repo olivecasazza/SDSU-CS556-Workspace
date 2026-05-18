@@ -28,13 +28,6 @@ def _(mo):
 
 
 @app.cell
-def _():
-    # '%pip install tinyik' command supported automatically in marimo
-    # '%pip install plotly' command supported automatically in marimo
-    return
-
-
-@app.cell
 async def _():
     import micropip
     await micropip.install([

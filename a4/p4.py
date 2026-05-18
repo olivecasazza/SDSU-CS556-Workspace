@@ -29,12 +29,6 @@ def _(mo):
 
 
 @app.cell
-def _():
-    # '%pip install plotly' command supported automatically in marimo
-    return
-
-
-@app.cell
 async def _():
     import micropip
     await micropip.install(['plotly', 'sympy', 'numpy'])
