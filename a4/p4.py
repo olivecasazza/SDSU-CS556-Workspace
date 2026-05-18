@@ -36,8 +36,8 @@ def _():
 
 @app.cell
 async def _():
-    import piplite
-    await piplite.install(['plotly', 'sympy', 'numpy'])
+    import micropip
+    await micropip.install(['plotly', 'sympy', 'numpy'])
 
     import plotly.graph_objects as go
     import sympy as sp

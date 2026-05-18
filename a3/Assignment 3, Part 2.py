@@ -36,8 +36,8 @@ def _():
 
 @app.cell
 async def _():
-    import piplite
-    await piplite.install([
+    import micropip
+    await micropip.install([
         'matplotlib',
         'tinyik',
         'numpy',
