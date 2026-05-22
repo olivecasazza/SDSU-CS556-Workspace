@@ -54,18 +54,16 @@ def _(go, np, sp):
     _position_plot = go.Figure()
     _position_plot.add_trace(go.Scatter(x=_px_one, y=_py_one, mode='lines'))
     _position_plot.add_trace(go.Scatter(x=_px_two, y=_py_two, mode='lines'))
-    _position_plot.show()
     _vf = a1 + 2 * a2 * t + 3 * a3 * t ** 2
     _vfl = sp.lambdify((a1, a2, a3, t), _vf, 'numpy')
     _vx_one = np.linspace(0, 1, 100).tolist()
-    _vx_two = np.linspace(1, 2, 100).tolist()
     # velocity plot
+    _vx_two = np.linspace(1, 2, 100).tolist()
     _vy_one = [_vfl(0, 12.5, -2.5, t) for t in _vx_one]
     _vy_two = [_vfl(17.5, 40, -32.5, t - 1) for t in _vx_two]
     _velocity_plot = go.Figure()
     _velocity_plot.add_trace(go.Scatter(x=_vx_one, y=_vy_one, mode='lines'))
     _velocity_plot.add_trace(go.Scatter(x=_vx_two, y=_vy_two, mode='lines'))
-    _velocity_plot.show()
     _af = 2 * a2 + 6 * a3 * t
     _afl = sp.lambdify((a1, a2, a3, t), _af, 'numpy')
     _ax_one = np.linspace(0, 1, 100).tolist()
@@ -76,8 +74,7 @@ def _(go, np, sp):
     # acceleration plot
     _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
     _acceleration_plot.add_trace(go.Scatter(x=_ax_two, y=_ay_two, mode='lines'))
-    _acceleration_plot.show()
-    return (t,)
+    return (_position_plot, _velocity_plot, _acceleration_plot, t)
 
 
 @app.cell
@@ -92,7 +89,6 @@ def _(go, math, np, sp, t):
     _position_plot = go.Figure()
     _position_plot.add_trace(go.Scatter(x=_px_one, y=_py_one, mode='lines'))
     _position_plot.add_trace(go.Scatter(x=_px_two, y=_py_two, mode='lines'))
-    _position_plot.show()
     _vf = (1 / 2 - sp.cos(2 * math.pi * t / 2) / 2) * (40 - 5)
     _vfl = sp.lambdify(t, _vf, 'numpy')
     _vx_one = np.linspace(0, 1, 100).tolist()
@@ -103,7 +99,6 @@ def _(go, math, np, sp, t):
     _velocity_plot = go.Figure()
     _velocity_plot.add_trace(go.Scatter(x=_vx_one, y=_vy_one, mode='lines'))
     _velocity_plot.add_trace(go.Scatter(x=_vx_two, y=_vy_two, mode='lines'))
-    _velocity_plot.show()
     _af = sp.sin(2 * math.pi * t / 2) * 2 * math.pi / 4 * 35
     _afl = sp.lambdify(t, _af, 'numpy')
     _ax_one = np.linspace(0, 1, 100).tolist()
@@ -114,8 +109,7 @@ def _(go, math, np, sp, t):
     _acceleration_plot = go.Figure()
     _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
     _acceleration_plot.add_trace(go.Scatter(x=_ax_two, y=_ay_two, mode='lines'))
-    _acceleration_plot.show()
-    return
+    return (_position_plot, _velocity_plot, _acceleration_plot)
 
 
 if __name__ == "__main__":

@@ -91,15 +91,14 @@ async def _():
 
 
 @app.cell
-def _():
+def _(mo):
     # here's an image of the robot arm in question
-    from IPython.display import Image
-    Image("fig/img1.png", width=300)
+    mo.image(src="fig/img1.png", width=300)
     return
 
 
 @app.cell
-def _(display, dynamicsymbols, sp):
+def _(mo, dynamicsymbols, sp):
     """
     Derive the forward kinematics equations to find the 
     corresponding x,y coordnates based on given (θ1, θ2) 
@@ -141,7 +140,7 @@ def _(display, dynamicsymbols, sp):
     )
 
     t_02.simplify()
-    display(t_02)
+    mo.md(t_02)
     return l1, l2, t_02, theta1, theta2
 
 
@@ -229,14 +228,15 @@ def _(NUMBER_TRIALS, RR_forward_kinematics, go, np, random):
     # kinematics to show our workspace
     x_cord = [ e['forward_kinematics'][0] for e in trial_points ]
     y_cord = [ e['forward_kinematics'][1] for e in trial_points ]
-    go.Figure(
+    fig = go.Figure(
         data=go.Scattergl(
             x = x_cord,
             y = y_cord,
             mode='markers'
         )
-    ).show()
-    return trial_points, x_cord, y_cord
+    )
+    fig
+    return trial_points, x_cord, y_cord, fig
 
 
 @app.cell
@@ -335,9 +335,8 @@ def _(go, grid_points, matplotlib, random):
                     name="(" + str(x_index) + "," + str(y_index) + ")",
                 )
             )
-    # show the plot
-    grid_plot.show()
-    return
+    grid_plot
+    return (grid_plot,)
 
 
 @app.cell
@@ -558,8 +557,8 @@ def _(go, inputs, trial_errors):
             )
         )
     )
-    error_chart.show()
-    return
+    error_chart
+    return (error_chart,)
 
 
 if __name__ == "__main__":
