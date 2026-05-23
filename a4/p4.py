@@ -53,6 +53,7 @@ def _(go, mo, np, sp):
     _position_plot = go.Figure()
     _position_plot.add_trace(go.Scatter(x=_px_one, y=_py_one, mode='lines'))
     _position_plot.add_trace(go.Scatter(x=_px_two, y=_py_two, mode='lines'))
+    _position_plot.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     _vf = a1 + 2 * a2 * t + 3 * a3 * t ** 2
     _vfl = sp.lambdify((a1, a2, a3, t), _vf, 'numpy')
     _vx_one = np.linspace(0, 1, 100).tolist()
@@ -63,6 +64,7 @@ def _(go, mo, np, sp):
     _velocity_plot = go.Figure()
     _velocity_plot.add_trace(go.Scatter(x=_vx_one, y=_vy_one, mode='lines'))
     _velocity_plot.add_trace(go.Scatter(x=_vx_two, y=_vy_two, mode='lines'))
+    _velocity_plot.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     _af = 2 * a2 + 6 * a3 * t
     _afl = sp.lambdify((a1, a2, a3, t), _af, 'numpy')
     _ax_one = np.linspace(0, 1, 100).tolist()
@@ -73,6 +75,7 @@ def _(go, mo, np, sp):
     _acceleration_plot = go.Figure()
     _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
     _acceleration_plot.add_trace(go.Scatter(x=_ax_two, y=_ay_two, mode='lines'))
+    _acceleration_plot.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     spline_trajectory_plots = mo.vstack([
         mo.md("#### Two-segment cubic polynomial trajectory"),
         mo.md("Position"),
@@ -103,6 +106,7 @@ def _(go, math, mo, np, sp, t):
     _position_plot = go.Figure()
     _position_plot.add_trace(go.Scatter(x=_px_one, y=_py_one, mode='lines'))
     _position_plot.add_trace(go.Scatter(x=_px_two, y=_py_two, mode='lines'))
+    _position_plot.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     _vf = (1 / 2 - sp.cos(2 * math.pi * t / 2) / 2) * (40 - 5)
     _vfl = sp.lambdify(t, _vf, 'numpy')
     _vx_one = np.linspace(0, 1, 100).tolist()
@@ -113,6 +117,7 @@ def _(go, math, mo, np, sp, t):
     _velocity_plot = go.Figure()
     _velocity_plot.add_trace(go.Scatter(x=_vx_one, y=_vy_one, mode='lines'))
     _velocity_plot.add_trace(go.Scatter(x=_vx_two, y=_vy_two, mode='lines'))
+    _velocity_plot.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     _af = sp.sin(2 * math.pi * t / 2) * 2 * math.pi / 4 * 35
     _afl = sp.lambdify(t, _af, 'numpy')
     _ax_one = np.linspace(0, 1, 100).tolist()
@@ -123,6 +128,7 @@ def _(go, math, mo, np, sp, t):
     _acceleration_plot = go.Figure()
     _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
     _acceleration_plot.add_trace(go.Scatter(x=_ax_two, y=_ay_two, mode='lines'))
+    _acceleration_plot.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     cycloid_trajectory_plots = mo.vstack([
         mo.md("#### Cycloid trajectory"),
         mo.md("Position"),

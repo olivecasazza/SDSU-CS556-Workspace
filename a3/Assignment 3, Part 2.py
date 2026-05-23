@@ -239,6 +239,7 @@ def _(NUMBER_TRIALS, RR_forward_kinematics, go, mo, np, random):
             mode='markers'
         )
     )
+    fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     _fig = mo.vstack([
         mo.md("#### Fuzzed Forward Kinematics Workspace"),
         fig
@@ -343,6 +344,7 @@ def _(go, grid_points, matplotlib, mo, random):
                     name="(" + str(x_index) + "," + str(y_index) + ")",
                 )
             )
+    grid_plot.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     _grid_plot = mo.vstack([
         mo.md("#### Workspace Grid"),
         grid_plot
@@ -572,6 +574,7 @@ def _(go, inputs, mo, trial_errors):
             )
         )
     )
+    error_chart.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     _error_chart = mo.vstack([
         mo.md("#### Approximation Error Scatter Plot"),
         error_chart
