@@ -22,10 +22,9 @@ def _(mo):
     a. Sketch the graphs of position, velocity and acceleration for initial angle 0=5.0 deg, the via-point angle v=15.0 deg. and final angle f=40.0 deg. Assume that the duration of each segment is 1.0 sec (i.e. total duration of  2 sec), and the velocity at the via point is to be 17.5 deg/sec.
 
     b. Use the cycloid trajectory, with the same initial 0=5.0 deg and final f=40.0 deg  joint angles, and the total duration of 2 sec. Compare the maximum velocity and acceleration with the two segment cubic polynomial in (a), which trajectory is better and why?
-
-    The maximum velocity and acceleration for the cycloid trajectory are a lot more continuous and smooth than the trajectories produced by the spline functions. This is more desireable because it will produce robot movements that are a lot smoother than those produced by the spline calculations.
     """)
     return
+
 
 
 @app.cell
@@ -70,8 +69,8 @@ def _(go, mo, np, sp):
     _ax_two = np.linspace(1, 2, 100).tolist()
     _ay_one = [_afl(0, 12.5, -2.5, t) for t in _ax_one]
     _ay_two = [_afl(17.5, 40, -32.5, t - 1) for t in _ax_two]
-    _acceleration_plot = go.Figure()
     # acceleration plot
+    _acceleration_plot = go.Figure()
     _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
     _acceleration_plot.add_trace(go.Scatter(x=_ax_two, y=_ay_two, mode='lines'))
     spline_trajectory_plots = mo.vstack([
@@ -83,7 +82,13 @@ def _(go, mo, np, sp):
         mo.md("Acceleration"),
         _acceleration_plot,
     ])
-    return (spline_trajectory_plots, t)
+    mo.output.append(spline_trajectory_plots)
+    cubic_vy_one = _vy_one
+    cubic_vy_two = _vy_two
+    cubic_ay_one = _ay_one
+    cubic_ay_two = _ay_two
+    return (spline_trajectory_plots, t, _vy_one, _vy_two, _ay_one, _ay_two)
+
 
 
 @app.cell
@@ -93,8 +98,8 @@ def _(go, math, mo, np, sp, t):
     _pfl = sp.lambdify(t, _pf, 'numpy')
     _px_one = np.linspace(0, 1, 100).tolist()
     _px_two = np.linspace(1, 2, 100).tolist()
-    _py_one = [_pfl(t) for t in _px_one]
-    _py_two = [_pfl(t) for t in _px_two]
+    _py_one = [_pfl(t_val) for t_val in _px_one]
+    _py_two = [_pfl(t_val) for t_val in _px_two]
     _position_plot = go.Figure()
     _position_plot.add_trace(go.Scatter(x=_px_one, y=_py_one, mode='lines'))
     _position_plot.add_trace(go.Scatter(x=_px_two, y=_py_two, mode='lines'))
@@ -103,8 +108,8 @@ def _(go, math, mo, np, sp, t):
     _vx_one = np.linspace(0, 1, 100).tolist()
     # velocity plot
     _vx_two = np.linspace(1, 2, 100).tolist()
-    _vy_one = [_vfl(t) for t in _vx_one]
-    _vy_two = [_vfl(t) for t in _vx_two]
+    _vy_one = [_vfl(t_val) for t_val in _vx_one]
+    _vy_two = [_vfl(t_val) for t_val in _vx_two]
     _velocity_plot = go.Figure()
     _velocity_plot.add_trace(go.Scatter(x=_vx_one, y=_vy_one, mode='lines'))
     _velocity_plot.add_trace(go.Scatter(x=_vx_two, y=_vy_two, mode='lines'))
@@ -112,8 +117,8 @@ def _(go, math, mo, np, sp, t):
     _afl = sp.lambdify(t, _af, 'numpy')
     _ax_one = np.linspace(0, 1, 100).tolist()
     _ax_two = np.linspace(1, 2, 100).tolist()
-    _ay_one = [_afl(t) for t in _ax_one]
-    _ay_two = [_afl(t) for t in _ax_two]
+    _ay_one = [_afl(t_val) for t_val in _ax_one]
+    _ay_two = [_afl(t_val) for t_val in _ax_two]
     # acceleration plot
     _acceleration_plot = go.Figure()
     _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
@@ -127,7 +132,28 @@ def _(go, math, mo, np, sp, t):
         mo.md("Acceleration"),
         _acceleration_plot,
     ])
-    return (cycloid_trajectory_plots,)
+    mo.output.append(cycloid_trajectory_plots)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.output.append(mo.md(
+        """
+        The maximum velocity and acceleration for the cycloid trajectory are a lot more continuous and smooth than the trajectories produced by the spline functions. This is more desireable because it will produce robot movements that are a lot smoother than those produced by the spline calculations.
+        
+        ```
+        first, second, and third order derivatives for cycloid
+        
+        theta         = 5 + ((t(:)/2) - sin(2*pi*t(:)/2)/(2*pi))*(40-5);
+        theta_prime_1 = ((1/2) - cos(2*pi*t(:)/2)/2)*(40-5);
+        theta_prime_2 = (sin(2*pi*t(:)/2)*2*pi/(2^2))*(40-5);
+        theta_prime_3 = (cos(2*pi*t(:)/2)*((2*pi)^2)/(2^3))*(40-5);
+        ```
+        """
+    ))
+    return
+
 
 
 if __name__ == "__main__":

@@ -93,12 +93,13 @@ async def _():
 @app.cell
 def _(mo):
     # here's an image of the robot arm in question
-    mo.image(src="fig/img1.png", width=300)
+    robot_arm_image = mo.image(src="fig/img1.png", width=300)
+    mo.output.append(robot_arm_image)
     return
 
 
 @app.cell
-def _(dynamicsymbols, sp):
+def _(dynamicsymbols, mo, sp):
     """
     Derive the forward kinematics equations to find the 
     corresponding x,y coordnates based on given (θ1, θ2) 
@@ -140,6 +141,10 @@ def _(dynamicsymbols, sp):
     )
 
     t_02.simplify()
+    mo.output.append(mo.vstack([
+        mo.md("#### Forward kinematics transformation matrix"),
+        mo.md("```text\n" + str(t_02) + "\n```"),
+    ]))
     return l1, l2, t_02, theta1, theta2
 
 
@@ -234,8 +239,11 @@ def _(NUMBER_TRIALS, RR_forward_kinematics, go, mo, np, random):
             mode='markers'
         )
     )
-    mo.output.append(mo.md("#### Fuzzed Forward Kinematics Workspace"))
-    mo.output.append(fig)
+    _fig = mo.vstack([
+        mo.md("#### Fuzzed Forward Kinematics Workspace"),
+        fig
+    ])
+    mo.output.append(_fig)
     return trial_points, x_cord, y_cord, fig
 
 
@@ -335,8 +343,11 @@ def _(go, grid_points, matplotlib, mo, random):
                     name="(" + str(x_index) + "," + str(y_index) + ")",
                 )
             )
-    mo.output.append(mo.md("#### Workspace Grid"))
-    mo.output.append(grid_plot)
+    _grid_plot = mo.vstack([
+        mo.md("#### Workspace Grid"),
+        grid_plot
+    ])
+    mo.output.append(_grid_plot)
     return (grid_plot,)
 
 
@@ -437,6 +448,7 @@ def _(LinearRegression, cluster_grid_df):
 @app.cell
 def _(
     RR_forward_kinematics,
+    mo,
     RR_inverse_kinematics,
     get_grid_coordinates,
     lin_reg_cluster_grid,
@@ -521,7 +533,9 @@ def _(
     # take the average of all of the
     # total errors for each trial
     average_error = sum(trial_errors) / len(trial_errors)
-    print("average error: ", average_error, " cm")
+    average_error_message = f"average error: {average_error} cm"
+    print(average_error_message)
+    mo.output.append(mo.md(f"`{average_error_message}`"))
     return inputs, trial_errors
 
 
@@ -558,8 +572,11 @@ def _(go, inputs, mo, trial_errors):
             )
         )
     )
-    mo.output.append(mo.md("#### Approximation Error Scatter Plot"))
-    mo.output.append(error_chart)
+    _error_chart = mo.vstack([
+        mo.md("#### Approximation Error Scatter Plot"),
+        error_chart
+    ])
+    mo.output.append(_error_chart)
     return (error_chart,)
 
 
