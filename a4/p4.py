@@ -42,7 +42,7 @@ async def _():
 
 
 @app.cell
-def _(go, np, sp):
+def _(go, mo, np, sp):
     a0, a1, a2, a3, t = sp.symbols('a0 a1 a2 a3 t')
     _pf = a0 + a1 * t + a2 * t ** 2 + a3 * t ** 3
     # position plot
@@ -74,11 +74,20 @@ def _(go, np, sp):
     # acceleration plot
     _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
     _acceleration_plot.add_trace(go.Scatter(x=_ax_two, y=_ay_two, mode='lines'))
-    return (_position_plot, _velocity_plot, _acceleration_plot, t)
+    spline_trajectory_plots = mo.vstack([
+        mo.md("#### Two-segment cubic polynomial trajectory"),
+        mo.md("Position"),
+        _position_plot,
+        mo.md("Velocity"),
+        _velocity_plot,
+        mo.md("Acceleration"),
+        _acceleration_plot,
+    ])
+    return (spline_trajectory_plots, t)
 
 
 @app.cell
-def _(go, math, np, sp, t):
+def _(go, math, mo, np, sp, t):
     # position plot
     _pf = 5 + (t / 2 - sp.sin(2 * math.pi * t / 2) / (2 * math.pi)) * (40 - 5)
     _pfl = sp.lambdify(t, _pf, 'numpy')
@@ -109,7 +118,16 @@ def _(go, math, np, sp, t):
     _acceleration_plot = go.Figure()
     _acceleration_plot.add_trace(go.Scatter(x=_ax_one, y=_ay_one, mode='lines'))
     _acceleration_plot.add_trace(go.Scatter(x=_ax_two, y=_ay_two, mode='lines'))
-    return (_position_plot, _velocity_plot, _acceleration_plot)
+    cycloid_trajectory_plots = mo.vstack([
+        mo.md("#### Cycloid trajectory"),
+        mo.md("Position"),
+        _position_plot,
+        mo.md("Velocity"),
+        _velocity_plot,
+        mo.md("Acceleration"),
+        _acceleration_plot,
+    ])
+    return (cycloid_trajectory_plots,)
 
 
 if __name__ == "__main__":
