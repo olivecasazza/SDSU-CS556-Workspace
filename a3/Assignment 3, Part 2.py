@@ -95,7 +95,7 @@ def _(mo):
     # here's an image of the robot arm in question
     robot_arm_image = mo.image(src="fig/img1.png", width=300)
     mo.output.append(robot_arm_image)
-    return
+    return robot_arm_image,
 
 
 @app.cell
