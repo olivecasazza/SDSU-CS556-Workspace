@@ -299,14 +299,26 @@ def _(
     ))
     fig_err.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=0))
 
+    fig_err_3d = go.Figure(data=go.Scatter3d(
+        x=x_test, y=y_test, z=trial_errors, mode='markers',
+        marker=dict(size=2, color=trial_errors, colorscale='Viridis', showscale=True)
+    ))
+    fig_err_3d.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=0, r=0, b=0, t=0),
+        scene=dict(xaxis_title='X Position', yaxis_title='Y Position', zaxis_title='Error (cm)')
+    )
+
     err_section = mo.vstack([
         mo.md(f"## Approximation Error\nAverage error over 1000 samples: `{avg_error:.3f}` cm"),
-        mo.md("The scatter plot below highlights regions where the local linear approximation struggles (lighter/larger dots mean higher error, usually around boundaries/singularities)."),
-        fig_err
+        mo.md("The 2D and 3D scatter plots below highlight regions where the local linear approximation struggles (higher Z-axis / lighter color means higher error, usually around workspace boundaries and singularities)."),
+        mo.hstack([fig_err, fig_err_3d])
     ])
     mo.output.append(err_section)
 
-    return attempts, avg_error, err_section, fig_err, size_test, test_inputs, trial_errors, x_test, y_test
+    return attempts, avg_error, err_section, fig_err, fig_err_3d, size_test, test_inputs, trial_errors, x_test, y_test
 
 
 if __name__ == "__main__":
