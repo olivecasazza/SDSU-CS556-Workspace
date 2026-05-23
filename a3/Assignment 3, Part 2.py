@@ -98,7 +98,7 @@ def _(mo):
 
 
 @app.cell
-def _(mo, dynamicsymbols, sp):
+def _(dynamicsymbols, sp):
     """
     Derive the forward kinematics equations to find the 
     corresponding x,y coordnates based on given (θ1, θ2) 
@@ -140,7 +140,6 @@ def _(mo, dynamicsymbols, sp):
     )
 
     t_02.simplify()
-    mo.md(t_02)
     return l1, l2, t_02, theta1, theta2
 
 
@@ -203,7 +202,7 @@ def _(L1_LENGTH, L2_LENGTH, l1, l2, math, sp, t_02, theta1, theta2):
 
 
 @app.cell
-def _(NUMBER_TRIALS, RR_forward_kinematics, go, np, random):
+def _(NUMBER_TRIALS, RR_forward_kinematics, go, mo, np, random):
     """
     Generate NUMBER_TRIALS random (θ1, θ2) pairs, 
     and  use the forward kinematics equations to find the 
@@ -228,14 +227,17 @@ def _(NUMBER_TRIALS, RR_forward_kinematics, go, np, random):
     # kinematics to show our workspace
     x_cord = [ e['forward_kinematics'][0] for e in trial_points ]
     y_cord = [ e['forward_kinematics'][1] for e in trial_points ]
-    fig = go.Figure(
+    _fig = go.Figure(
         data=go.Scattergl(
             x = x_cord,
             y = y_cord,
             mode='markers'
         )
     )
-    fig
+    fig = mo.vstack([
+        mo.md("#### Fuzzed Forward Kinematics Workspace"),
+        _fig
+    ])
     return trial_points, x_cord, y_cord, fig
 
 
@@ -300,7 +302,7 @@ def _(get_grid_coordinates, grid_height, grid_width, trial_points):
 
 
 @app.cell
-def _(go, grid_points, matplotlib, random):
+def _(go, grid_points, matplotlib, mo, random):
     # some helper objects for the chart
     # we're about to make, dictionary of
     # colors we can randomly select from
@@ -317,7 +319,7 @@ def _(go, grid_points, matplotlib, random):
     sections. each colored, square cluster
     of points share the same grid coordinates
     """
-    grid_plot = go.Figure()
+    _grid_plot = go.Figure()
     for y_index, row in enumerate(grid_points):
         for x_index, cell in enumerate(row):
             # if the cell has no
@@ -326,7 +328,7 @@ def _(go, grid_points, matplotlib, random):
                 continue
             # plot the x,y pairs
             # for this cell
-            grid_plot.add_trace(
+            _grid_plot.add_trace(
                 go.Scattergl(
                     x=[ e['forward_kinematics'][0] for e in cell ],
                     y=[ e['forward_kinematics'][1] for e in cell ],
@@ -335,8 +337,11 @@ def _(go, grid_points, matplotlib, random):
                     name="(" + str(x_index) + "," + str(y_index) + ")",
                 )
             )
-    grid_plot
-    return (grid_plot,)
+    grid_plot = mo.vstack([
+        mo.md("#### Workspace Grid"),
+        _grid_plot
+    ])
+    return (_grid_plot, grid_plot,)
 
 
 @app.cell
@@ -525,7 +530,7 @@ def _(
 
 
 @app.cell
-def _(go, inputs, trial_errors):
+def _(go, inputs, mo, trial_errors):
     """
     here's a chart showing the inputs to
     out test above on the x y plane
@@ -545,7 +550,7 @@ def _(go, inputs, trial_errors):
     y_inputs = list(map(lambda x: x[1], inputs))
     normalized_error = [ (x+5) for x in trial_errors]
 
-    error_chart = go.Figure(
+    _error_chart = go.Figure(
         data=go.Scattergl(
             x = x_inputs,
             y = y_inputs,
@@ -557,7 +562,10 @@ def _(go, inputs, trial_errors):
             )
         )
     )
-    error_chart
+    error_chart = mo.vstack([
+        mo.md("#### Approximation Error Scatter Plot"),
+        _error_chart
+    ])
     return (error_chart,)
 
 
