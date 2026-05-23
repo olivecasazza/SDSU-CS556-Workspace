@@ -52,7 +52,6 @@ def _(mo):
         mo.hstack([theta_start, theta_via, theta_final], justify="start"),
         mo.hstack([segment_duration, via_velocity], justify="start"),
     ])
-    mo.output.append(controls)
     return controls, segment_duration, theta_final, theta_start, theta_via, via_velocity
 
 
@@ -163,7 +162,6 @@ def _(dark_figure, go, mo, trajectory_data):
         velocity_plot,
         acceleration_plot,
     ])
-    mo.output.append(plots)
     return acceleration_plot, plots, position_plot, velocity_plot
 
 
@@ -184,7 +182,6 @@ def _(mo, np, trajectory_data):
 
     The cubic trajectory is useful when a via-point and via-point velocity are required, but acceleration can jump at the segment boundary. The cycloid trajectory is smoother between the start and final angle because velocity and acceleration vary continuously over the full motion.
     """)
-    mo.output.append(comparison)
     return (comparison,)
 
 
@@ -205,8 +202,15 @@ def _(mo, trajectory_data):
     ({second[0]:.3f}, {second[1]:.3f}, {second[2]:.3f}, {second[3]:.3f})
     ```
     """)
-    mo.output.append(equations)
     return (equations,)
+
+@app.cell(hide_code=True)
+def _(controls, plots, comparison, equations, mo):
+    app_ui = mo.vstack([
+        controls, plots, comparison, equations
+    ])
+    mo.output.append(app_ui)
+    return
 
 
 if __name__ == "__main__":
