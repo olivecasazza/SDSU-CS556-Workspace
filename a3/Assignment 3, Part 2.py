@@ -143,7 +143,7 @@ def _(dynamicsymbols, mo, sp):
     t_02.simplify()
     mo.output.append(mo.vstack([
         mo.md("#### Forward kinematics transformation matrix"),
-        mo.as_html(t_02),
+        mo.md(f"$$\n{sp.latex(t_02)}\n$$"),
     ]))
     return l1, l2, t_02, theta1, theta2
 
