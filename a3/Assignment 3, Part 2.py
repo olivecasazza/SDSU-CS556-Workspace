@@ -227,17 +227,15 @@ def _(NUMBER_TRIALS, RR_forward_kinematics, go, mo, np, random):
     # kinematics to show our workspace
     x_cord = [ e['forward_kinematics'][0] for e in trial_points ]
     y_cord = [ e['forward_kinematics'][1] for e in trial_points ]
-    _fig = go.Figure(
+    fig = go.Figure(
         data=go.Scattergl(
             x = x_cord,
             y = y_cord,
             mode='markers'
         )
     )
-    fig = mo.vstack([
-        mo.md("#### Fuzzed Forward Kinematics Workspace"),
-        _fig
-    ])
+    mo.output.append(mo.md("#### Fuzzed Forward Kinematics Workspace"))
+    mo.output.append(fig)
     return trial_points, x_cord, y_cord, fig
 
 
@@ -319,7 +317,7 @@ def _(go, grid_points, matplotlib, mo, random):
     sections. each colored, square cluster
     of points share the same grid coordinates
     """
-    _grid_plot = go.Figure()
+    grid_plot = go.Figure()
     for y_index, row in enumerate(grid_points):
         for x_index, cell in enumerate(row):
             # if the cell has no
@@ -328,7 +326,7 @@ def _(go, grid_points, matplotlib, mo, random):
                 continue
             # plot the x,y pairs
             # for this cell
-            _grid_plot.add_trace(
+            grid_plot.add_trace(
                 go.Scattergl(
                     x=[ e['forward_kinematics'][0] for e in cell ],
                     y=[ e['forward_kinematics'][1] for e in cell ],
@@ -337,11 +335,9 @@ def _(go, grid_points, matplotlib, mo, random):
                     name="(" + str(x_index) + "," + str(y_index) + ")",
                 )
             )
-    grid_plot = mo.vstack([
-        mo.md("#### Workspace Grid"),
-        _grid_plot
-    ])
-    return (_grid_plot, grid_plot,)
+    mo.output.append(mo.md("#### Workspace Grid"))
+    mo.output.append(grid_plot)
+    return (grid_plot,)
 
 
 @app.cell
@@ -550,7 +546,7 @@ def _(go, inputs, mo, trial_errors):
     y_inputs = list(map(lambda x: x[1], inputs))
     normalized_error = [ (x+5) for x in trial_errors]
 
-    _error_chart = go.Figure(
+    error_chart = go.Figure(
         data=go.Scattergl(
             x = x_inputs,
             y = y_inputs,
@@ -562,10 +558,8 @@ def _(go, inputs, mo, trial_errors):
             )
         )
     )
-    error_chart = mo.vstack([
-        mo.md("#### Approximation Error Scatter Plot"),
-        _error_chart
-    ])
+    mo.output.append(mo.md("#### Approximation Error Scatter Plot"))
+    mo.output.append(error_chart)
     return (error_chart,)
 
 
