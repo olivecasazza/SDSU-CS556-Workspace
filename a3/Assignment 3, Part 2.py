@@ -143,7 +143,37 @@ def _(dynamicsymbols, mo, sp):
     t_02.simplify()
     mo.output.append(mo.vstack([
         mo.md("#### Forward kinematics transformation matrix"),
-        mo.md("```text\n" + str(t_02) + "\n```"),
+        mo.ui.anywidget({
+            "_esm": """
+            function render({ model, el }) {
+              const host = document.createElement('div');
+              host.style.overflowX = 'auto';
+              host.style.maxWidth = '100%';
+              el.appendChild(host);
+              const latex = model.get('latex');
+              const renderMath = () => {
+                if (window.katex) {
+                  window.katex.render(latex, host, { displayMode: true, throwOnError: false });
+                  return;
+                }
+                host.textContent = latex;
+              };
+              if (!window.katex) {
+                const css = document.createElement('link');
+                css.rel = 'stylesheet';
+                css.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css';
+                document.head.appendChild(css);
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js';
+                script.onload = renderMath;
+                document.head.appendChild(script);
+              } else {
+                renderMath();
+              }
+            }
+            """,
+            "latex": sp.latex(t_02),
+        }),
     ]))
     return l1, l2, t_02, theta1, theta2
 
